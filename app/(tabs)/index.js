@@ -1,7 +1,10 @@
 import { StyleSheet, TextInput, Animated, Pressable, Alert } from 'react-native';
-import { useState, useRef } from 'react';
-
+import { useState, useRef,useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { Text, View } from '@/components/Themed';
+import { useRouter } from 'expo-router';
+
+
 
 export default function TabOneScreen() {
   const [cardNumber, setCardNumber] = useState('');
@@ -10,7 +13,10 @@ export default function TabOneScreen() {
   const [cvv, setCvv] = useState('');
   const flipAnim = useRef(new Animated.Value(0)).current;
   const [flipped, setFlipped] = useState(false);
+  const { userId } = useContext(AuthContext);
 
+
+  const router = useRouter();
   const frontInterpolate = flipAnim.interpolate({
     inputRange: [0, 180],
     outputRange: ['0deg', '180deg'],
@@ -31,19 +37,20 @@ export default function TabOneScreen() {
     }).start(() => setFlipped(!flipped));
   };
 
-  const handleCardInput = (text: string) => {
-    // Remover espacios y caracteres no numéricos
-    const cleaned = text.replace(/\D/g, '');
-    
-    // Limitar a 16 dígitos
-    if (cleaned.length <= 16) {
-      // Formatear con espacios cada 4 dígitos
-      const formatted = cleaned.replace(/(\d{4})/g, '$1 ').trim();
-      setCardNumber(formatted);
-    }
-  };
+const handleCardInput = (text) => {
+  // Remover espacios y caracteres no numéricos
+  const cleaned = text.replace(/\D/g, '');
+  
+  // Limitar a 16 dígitos
+  if (cleaned.length <= 16) {
+    // Formatear con espacios cada 4 dígitos
+    const formatted = cleaned.replace(/(\d{4})/g, '$1 ').trim();
+    setCardNumber(formatted);
+  }
+};
 
-  const handleExpiryInput = (text: string) => {
+
+  const handleExpiryInput = (text) => {
     const cleaned = text.replace(/\D/g, '');
     
     if (cleaned.length <= 4) {
@@ -56,7 +63,7 @@ export default function TabOneScreen() {
     }
   };
 
-  const handleCvvInput = (text: string) => {
+  const handleCvvInput = (text) => {
     const cleaned = text.replace(/\D/g, '');
     if (cleaned.length <= 3) {
       setCvv(cleaned);
@@ -85,8 +92,55 @@ export default function TabOneScreen() {
      Alert.alert('Error', 'El CVV debe tener 3 dígitos numéricos.');
     return;
    }
+
+    newCard()
+
     Alert.alert('Éxito', 'Tarjeta ingresada correctamente.');
   };
+
+ const newCard = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/card`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+             'X-User-Id': userId.toString(),
+          },
+          body: JSON.stringify({
+            cardNumber: cardNumber.replace(/\s/g, ''),
+            cardHolder: cardHolder,
+            expiryDate: expiryDate,
+            cvv: cvv,
+          }),
+          
+        });
+
+    const data = await response.json();
+  
+   if (!response.ok) {
+     Alert.alert('Error', data.error || 'No se pudo agregar la tarjeta');
+     console.log('Error adding card:', data);
+     return null; 
+   }
+
+   if (data.success) {
+     console.log('Card added successfully:', data);
+    setCardNumber('');
+    setCardHolder('');
+    setExpiryDate('');
+    setCvv('');
+   }
+   
+   router.replace('/cards/page');
+
+   
+  } catch (err) {
+   console.error('Error al agregar tarjeta:', err);
+   Alert.alert('Error', err.message || 'Ocurrió un error');
+  }
+      
+};
+
 
   return (
     <View style={styles.container}>
