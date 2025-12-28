@@ -8,13 +8,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Intentamos recuperar el userId guardado en AsyncStorage
-    const loadUser = async () => {
-      const storedUserId = await AsyncStorage.getItem('userId');
-      if (storedUserId) setUserId(Number(storedUserId));
-      setLoading(false);
+     const loadUser = async () => {
+      try {
+        const id = await AsyncStorage.getItem('userId');
+       setUserId(id || null); // puede ser null si no existe
+      } catch (e) {
+        console.log('Error al cargar userId:', e);
+      } finally {
+        setLoading(false); // MUY IMPORTANTE
+      }
     };
     loadUser();
+   
   }, []);
 
   const login = async (id) => {

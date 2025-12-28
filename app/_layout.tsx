@@ -7,7 +7,8 @@ import { useEffect, useContext  } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useColorScheme } from '@/components/useColorScheme';
-
+import { Provider as PaperProvider } from 'react-native-paper';
+import { View, ActivityIndicator } from 'react-native';
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -33,9 +34,11 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <PaperProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </PaperProvider>
   );
 }
 
@@ -43,7 +46,11 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { userId, loading } = useContext(AuthContext);
 
-  if (loading) return null; // o un ActivityIndicator
+ if (loading) return (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator size="large" color="#4f46e5" />
+  </View>
+);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
