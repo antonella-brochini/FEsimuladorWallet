@@ -16,16 +16,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { Snackbar } from 'react-native-paper';
 import { useRouter} from 'expo-router';
 
+
 export default function WalletScreen() {
-  const { userId } = useContext(AuthContext);
+   const { userId, loading } = useContext(AuthContext);
   const [snackVisible, setSnackVisible] = useState(false);
   const [snackMessage, setSnackMessage] = useState('');
   const [snackType, setSnackType] = useState('info'); // 'info' | 'error' | 'success'
   const [balance, setBalance] = useState<number | null>(null);
   const [currency, setCurrency] = useState<string>("$");
-  const [loading, setLoading] = useState(true);
+  const [loadingDos, setLoadingDos] = useState(true);
   const [amount, setAmount] = useState("");
-const router = useRouter() as { push: (path: string) => void };
+
+const router = useRouter() as { push: (path: string) => void , replace: (path: string) => void};
   type CardItem = {
   label: string;
   value: number;
@@ -42,7 +44,15 @@ const showSnack = (message: string, type: SnackType = 'info') => {
   setSnackType(type);
   setSnackVisible(true);
 };
+
+
+
   useEffect(() => {
+    if (!loading) {
+    if (!userId) {
+      router.replace('/login/page'); // si no hay userId, manda a login
+    }
+  }
     if (!userId) return;
 
     const fetchBalance = async () => {
@@ -86,9 +96,9 @@ const showSnack = (message: string, type: SnackType = 'info') => {
     };
 
     Promise.all([fetchBalance(), fetchCards()]).finally(() =>
-      setLoading(false)
+      setLoadingDos(false)
     );
-  }, [userId]);
+  }, [userId,loading]);
 
   const handleTopUp = async () => {
   if (!selectedCardId || !amount || Number(amount) <= 0) {
@@ -126,7 +136,7 @@ const showSnack = (message: string, type: SnackType = 'info') => {
   }
 };
 
-  if (loading) {
+  if (loadingDos) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#6366f1" />
