@@ -59,7 +59,19 @@ La API cuenta con un **usuario de prueba** ya creado para facilitar el testeo de
 6. **Logout**  
    Al cerrar sesión, los datos guardados se eliminan y la próxima vez que se abra la app, volverá a mostrarse la pantalla de **Login**.
 
+### 1. Requisitos
+Para ejecutar la app necesitas tener instalados:
 
+- **Node.js** ≥ 18.x
+- **npm** o **yarn**
+-**Expo CLI**: No es necesario instalar globalmente. Se ejecuta con `npx expo start` usando la versión incluida en el proyecto.
+- Navegador web o la app **Expo Go** para ver en en el celular.
+- 
+### 2. Instalar dependencias y ejecutar
 
+Desde la carpeta del proyecto:
 
+- PowerShell
+npm install
+npx expo start -c
 
